@@ -1,0 +1,6 @@
+br\com\wvs\lerpdf\model\Caminhos.class
+br\com\wvs\lerpdf\model\PdfCheck.class
+br\com\wvs\lerpdf\model\ArqCsv.class
+br\com\wvs\lerpdf\FileUploadController.class
+br\com\wvs\lerpdf\model\Imagem.class
+br\com\wvs\lerpdf\Configuracao.class

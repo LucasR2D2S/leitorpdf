@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Leitor de PDF e Imagens</title>
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<!-- <link rel="stylesheet" -->
+<!-- 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+<script src="https://kit.fontawesome.com/e2078d852f.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="container" align="center">
+			<h3 align="center" class="display-4">Bem vindo</h3>
+		</div>
+		<div class="jumbotron" align="center">
+			<form method="post" enctype="multipart/form-data" action="postando" name="formu" id="formu">
+				<p class="h4">Selecione um arquivo PDF ou uma imagem(ns) para iniciar o processo:</p>
+				
+				<p class="h5"><small class="text-muted">Por favor, insira apenas PDFs por esse caminho:</small></p>
+				<p>
+					<input accesskey="1"
+						alt="Insira um pdf ou imagens do tipo: jpg, png, tiff ou bmp"
+						class="btn btn-secondary btn-lg active" type="file" name="file" id="file"
+						required
+						accept=" image/jpeg,image/png,application/pdf,image/gif,image/tiff,image/tif,image/x-windows-bmp,image/bmp,image/pjpeg,image/x-portable-anymap" multiple/>
+				</p>
+				<button class="btn btn-secondary btn-lg active" type="submit"
+					value="Upload" onclick="carregandoLoading()" id="botaopdf">
+					<i style="font-size: 24px" class="far fa-file-pdf"></i><h6 class="h6"> Pdf</h6>
+				</button>
+				<button class="btn btn-secondary btn-lg active" type="submit"
+					value="Upload" onclick="changeAction()" id="botaoimagem">
+					<i style="font-size: 24px" class="far fa-file-image"></i><h6 class="h6"> Imagem</h6>
+				</button>
+			</form>
+			<div class="container">
+				<p>
+				<h6 id="text" class="h6 d-none">
+					Extraindo informações, aguarde um instante por favor... <i class="fas fa-circle-notch fa-spin fa-3x" style="font-size:24px"></i>
+				</h6>
+			</div>
+		</div>
+		<div class="jumbotron" align="center" tabindex="-1" id="check">
+			<h3 tabindex="0">
+				Ultimo PDF lido <small class="text-muted">Checagens do PDF</small>
+			</h3>
+			<p class="h5">
+				<span th:if="${check == null}">Insira um pdf primeiro</span>
+			</p>
+			<div th:each="check : ${check}" class="container" align="center">
+				<div align="center">
+					<h3>O pdf possui imagens?</h3>
+					<h4>
+						<span th:if="${check.img == true}"><i
+							style="font-size: 24px" class="fa">&#xf00c;</i></span><span
+							th:unless="${check.img == true}"><i
+							style="font-size: 24px" class="fa">&#xf00d;</i></span>
+					</h4>
+					<h3>O pdf possui textos?</h3>
+					<h4>
+						<span th:if="${check.text == true}"><i
+							style="font-size: 24px" class="fa">&#xf00c;</i></span> <span
+							th:unless="${check.text == true}"><i
+							style="font-size: 24px" class="fa">&#xf00d;</i></span>
+					</h4>
+					<h3>O pdf é formatado em pdfa?</h3>
+					<h4>
+						<span th:if="${check.pdfa == true}"><i
+							style="font-size: 24px" class="fa">&#xf00c;</i></span> <span
+							th:unless="${check.pdfa == true}"><i
+							style="font-size: 24px" class="fa">&#xf00d;</i></span>
+					</h4>
+				</div>
+			</div>
+		</div>
+		<div class="jumbotron" align="left">
+			<h3 class="display-4">Lista de Pdfs salvos:</h3>
+			<div align="right">
+				<p>
+					<a class="btn btn-lg active" th:href="@{/deleteP}"><i
+						class="fa fa-trash"></i> Limpar</a>
+				</p>
+			</div>
+			<table class="table">
+				<thead class="thead-dark">
+					<tr>
+						<th align="left" class="col">Nome</th>
+						<th align="left" class="col">Tamanho</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr align="left" th:each="fileP: ${filesP}">
+						<th align="left"><a
+							th:href="@{'/statics/Pdfs/' + ${fileP.getName()}}"><span
+								th:text="${fileP.getName()}" /></span></a></th>
+						<th><span th:text="${fileP.length()/1024 + 'KB'}"></span></th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="jumbotron" align="left">
+			<h3 class="display-4">Último Texto Extraido:</h3>
+			<table class="table">
+				<thead class="thead-dark">
+					<tr>
+						<th align="left" class="col">Nome</th>
+						<th align="left" class="col">Tamanho</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr align="left" th:each="fileT: ${filesT}">
+						<!-- 						<th align="left"><a th:href="@{${paths.getPathTexto()} + '/' + ${fileT.getName()}}" th:attr="download='${fileT.getName()}'"><span -->
+						<th align="left"><a
+							th:href="@{'/statics/Textos/' + ${fileT.getName()}}"><span
+								th:text="${fileT.getName()}" /></span></a></th>
+						<th><span th:text="${fileT.length()/1024 + 'KB'}"></span></th>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="jumbotron">
+			<div class="table-responsive" align="left">
+				<h3 class="display-4">Últimas Imagens Extraidas:</h3>
+				<table class="table">
+					<thead class="thead-dark">
+						<tr>
+							<th>Nome</th>
+							<th>Tamanho</th>
+							<th>Resolução (Largura x Altura)</th>
+							<th>Dpi</th>
+							<th>Formato</th>
+							<th>Mime Type</th>
+							<th>Compressão</th>
+							<th>Tipo Cor</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="imagem: ${imagens}" data-spy="scroll">
+							<th><a
+								th:href="@{'/statics/Imagens/' + ${imagem.getNome()}}"><span
+									th:text="${imagem.getNome()}" /></span></a></th>
+							<th><span
+								th:text="${#numbers.formatDecimal(imagem.getTamanho(), 1, 'DEFAULT', 2, 'DEFAULT') + 'KB'}"></span></th>
+							<th><span
+								th:text="${imagem.getLargura()} + 'x' + ${imagem.getAltura()}"></span></th>
+							<!-- 					<th><span th:text="${imagem.getDpih()} + 'x' + ${imagem.getDpiw()}"></span></th> -->
+							<th><span th:if="${imagem.getDpih() == -1.0}">Dpi não
+									definido</span> <span th:unless="${imagem.getDpih() == -1.0}"><span
+									th:text="${imagem.getDpih()}"></span></span></th>
+							<th><span th:text="${imagem.getFormat()}"></span></th>
+							<th><span th:text="${imagem.getMimetype()}"></span></th>
+							<th><span th:text="${imagem.getComp()}"></span></th>
+							<th><span th:text="${imagem.getCor()}"></span></th>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+ 
+		function carregandoLoading() {
+
+			var loadfile = document.getElementById("file").value;
+			var loadtext = document.getElementById("text");
+			var loadbotaopdf = document.getElementById("botaopdf");
+			var loadbotaoimagem = document.getElementById("botaoimagem");
+			
+			if (loadfile == null || loadfile == "") {
+				alert("Por favor selecione um arquivo.");
+			} else {
+				loadtext.classList.remove("d-none");
+				loadbotaopdf.classList.add("d-none");
+				loadbotaoimagem.classList.add("d-none");
+			}
+		}
+	</script>
+	<script type="text/javascript">
+
+		function changeAction() {
+			var loadfile = document.getElementById("file").value;
+			var loadtext = document.getElementById("text");
+			var loadbotaopdf = document.getElementById("botaopdf");
+			var loadbotaoimagem = document.getElementById("botaoimagem");
+			
+			if (loadfile == null || loadfile == "") {
+				alert("Por favor selecione um arquivo.");
+			} else {
+				document.formu.action = "postaimagem";
+				loadtext.classList.remove("d-none");
+				loadbotaopdf.classList.add("d-none");
+				loadbotaoimagem.classList.add("d-none");
+			}
+		}
+	</script>
+</body>
+</html>
